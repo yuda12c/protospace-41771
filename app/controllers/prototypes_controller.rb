@@ -3,7 +3,7 @@ before_action :authenticate_user!, only: [:new, :destroy]
 before_action :authorize_user!, only: [:edit, :update, :destroy]
 
 def index
-  @prototypes = Prototype.includes(:user).order(created_at: :desc)
+  @prototypes = Prototype.includes(:user).all
 end
 
 def new
@@ -20,7 +20,7 @@ def create
 end
 
 def show
-  @prototype = Prototype.find(params[:id])
+  @prototype = Prototype.includes(:user).find(params[:id])
   @comment = Comment.new
   @comments = @prototype.comments.includes(:user)
 end
@@ -31,8 +31,8 @@ end
 
 def update
   prototype = Prototype.find(params[:id])
-  if prototype.update(prototype_params)
-  redirect_to root_path
+  if @prototype.update(prototype_params)
+  redirect_to prototype_path(@prototype)
   else
     render :edit
   end
@@ -52,7 +52,7 @@ end
 def authorize_user!
   @prototype = Prototype.find(params[:id])
   unless @prototype.user == current_user
-    redirect_to root_path
+    redirect_to user_session_path
   end
  end
 end
